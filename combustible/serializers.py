@@ -5,7 +5,7 @@ class CargaCombustibleSerializer(serializers.ModelSerializer):
     class Meta:
         model = CargaCombustible
         fields = "__all__"
-        read_only_fields = ["fecha"]
+        read_only_fields = [] 
 
     # Valida que el odómetro crezca (segunda capa, además del clean() del modelo)
     def validate(self, data):

@@ -4,6 +4,6 @@ from .models import CargaCombustible
 @admin.register(CargaCombustible)
 class CargaCombustibleAdmin(admin.ModelAdmin):
     list_display  = ("vehiculo", "conductor", "litros", "costo", "odometro", "fecha")
-    list_filter   = ("vehiculo", "conductor")
+    list_filter   = ("vehiculo", "conductor", "fecha")
     search_fields = ("vehiculo__placa",)
     date_hierarchy = "fecha"

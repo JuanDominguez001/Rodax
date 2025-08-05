@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 class CargaCombustible(models.Model):
     vehiculo = models.ForeignKey(
@@ -17,7 +18,7 @@ class CargaCombustible(models.Model):
     litros = models.DecimalField(max_digits=6, decimal_places=2)
     costo = models.DecimalField(max_digits=8, decimal_places=2)
     odometro = models.PositiveIntegerField(help_text="Lectura de odómetro al cargar")
-    fecha = models.DateTimeField(auto_now_add=True)
+    fecha = models.DateTimeField(default=timezone.now)
 
     class Meta:
         verbose_name = "Carga de Combustible"
