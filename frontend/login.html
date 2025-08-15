@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rodax • Iniciar sesión</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="auth-bg">
+  <main class="auth-wrap">
+    <section class="auth-card">
+      <div class="brand">
+        <div class="logo">R</div>
+        <div>
+          <h1>Rodax</h1>
+          <small>Gestión Vehicular</small>
+        </div>
+      </div>
+
+      <form id="f-login" class="stack" autocomplete="on">
+        <label class="stack">
+          <span>Usuario</span>
+          <input name="username" placeholder="usuario o email" autocomplete="username" required />
+        </label>
+        <label class="stack">
+          <span>Password</span>
+          <input name="password" type="password" placeholder="password" autocomplete="current-password" required />
+        </label>
+        <button id="btn-login" class="btn">Entrar</button>
+        <small class="muted">Se guardan <code>access</code> y <code>refresh</code> en localStorage.</small>
+      </form>
+
+      <div class="row between" style="margin-top:8px">
+        <button id="btn-settings" class="icon-btn">⚙️ Ajustes</button>
+        <span id="chip-api" class="chip chip--muted">API: desconocida</span>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal Ajustes -->
+  <dialog id="dlg-settings" class="dialog">
+    <form method="dialog" class="card">
+      <h3>Ajustes</h3>
+      <label class="stack">
+        <span>BASE_URL (API)</span>
+        <input id="in-base" placeholder="http://localhost:8000/api" />
+      </label>
+      <div class="row gap">
+        <button id="btn-save-base" class="btn">Guardar</button>
+        <button id="btn-test-api" class="btn btn--ghost" type="button">Probar conexión</button>
+        <button class="btn btn--ghost" value="close">Cerrar</button>
+      </div>
+      <small class="muted">Se persiste en <code>localStorage.BASE_URL</code>.</small>
+    </form>
+  </dialog>
+
+  <!-- JS: rutas RELATIVAS a /frontend/ -->
+<link rel="stylesheet" href="/frontend/css/styles.css" />
+<script src="/frontend/js/config.js"></script>
+<script src="/frontend/js/http.js"></script>
+<script src="/frontend/js/auth.js"></script>
+
+  <script>
+    const $ = s => document.querySelector(s);
+    const toast = (m,t)=>{const d=document.createElement('div');d.className='toast '+(t==='success'?'ok':t==='error'?'err':'');d.textContent=m;document.body.appendChild(d);setTimeout(()=>d.remove(),2500);};
+    const setApiChip = (state)=>{ const chip=$('#chip-api'); if(state==='ok'){chip.className='chip chip--ok';chip.textContent='API: conectada';} else if(state==='err'){chip.className='chip chip--err';chip.textContent='API: error';} else {chip.className='chip chip--muted';chip.textContent='API: desconocida';} };
+
+    // Ajustes
+    const dlg = $('#dlg-settings'), inBase = $('#in-base');
+    $('#btn-settings').onclick = ()=>{ inBase.value = CONFIG.BASE_URL || ''; dlg.showModal(); };
+    $('#btn-save-base').onclick = (e)=>{ e.preventDefault(); http.setBase(inBase.value.trim()); toast('BASE_URL guardada','success'); };
+    $('#btn-test-api').onclick = async ()=>{
+      try{ await http.get('/health/'); setApiChip('ok'); toast('Conexión OK','success'); }
+      catch{ try{ await http.get('/vehiculos/'); setApiChip('ok'); toast('Conexión OK','success'); } catch{ setApiChip('err'); toast('Conexión fallida','error'); } }
+    };
+    if (CONFIG.BASE_URL) $('#btn-test-api').click();
+
+    // Si ya hay token, entra directo
+    if (CONFIG.ACCESS) window.location.href = 'app.html';
+
+    // Login con redirección y feedback
+    $('#f-login').onsubmit = async (ev)=>{
+      ev.preventDefault();
+      const fd = new FormData(ev.target);
+      const btn = $('#btn-login');
+      const orig = btn.textContent; btn.disabled = true; btn.textContent = 'Entrando...';
+      try{
+        await auth.login(fd.get('username'), fd.get('password')); // email o username
+        toast('Sesión iniciada','success');
+        window.location.href = 'app.html';
+      }catch(e){
+        console.error('LOGIN FAIL:', e);
+        toast('Error de login','error');
+      }finally{
+        btn.disabled = false; btn.textContent = orig;
+      }
+    };
+  </script>
+</body>
+</html>

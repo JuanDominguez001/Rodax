@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rodax • Dashboard</title>
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="/frontend/css/styles.css" />
+</head>
+<body>
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">R</div>
+      <div>
+        <h1>Rodax</h1>
+        <small>Gestión Vehicular</small>
+      </div>
+    </div>
+    <div class="status">
+      <span id="chip-api"  class="chip chip--muted">API: desconocida</span>
+      <span id="chip-auth" class="chip chip--muted">Auth: invitado</span>
+      <button id="btn-settings" class="icon-btn" title="Ajustes">⚙️</button>
+      <button id="btn-logout"   class="icon-btn" title="Salir">🚪</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <nav>
+        <a href="#/home"          class="nav-link active">🏠 Inicio</a>
+        <a href="#/vehiculos"     class="nav-link">🚗 Vehículos</a>
+        <a href="#/asignaciones"  class="nav-link">🧾 Asignaciones</a>
+        <a href="#/combustible"   class="nav-link">⛽ Combustible</a>
+        <a href="#/mantenimiento" class="nav-link">🛠️ Mantenimiento</a>
+        <a href="#/usuarios"      class="nav-link">👤 Usuarios</a>
+        <a href="#/reportes"      class="nav-link">📈 Reportes</a>
+      </nav>
+    </aside>
+
+    <!-- Contenido -->
+    <main class="content">
+      <!-- HOME -->
+      <section data-view="home" class="view">
+        <div class="hero">
+          <h2>Bienvenido 👋</h2>
+          <p class="muted">Selecciona un módulo del menú lateral para comenzar.</p>
+          <div class="row gap">
+            <button id="btn-test-api" class="btn">Probar conexión</button>
+            <button id="btn-open-settings" class="btn btn--ghost">Ajustes</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- VEHÍCULOS -->
+      <section data-view="vehiculos" class="view hidden">
+        <div class="card">
+          <div class="row between">
+            <h2>Vehículos</h2>
+            <div class="row gap">
+              <input id="filtro" placeholder="Buscar por placa/marca/modelo..." />
+              <button id="btn-cargar" class="btn">Cargar</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Placa</th>
+                  <th>Marca</th>
+                  <th>Modelo</th>
+                  <th>Año</th>
+                  <th class="right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-vehiculos"></tbody>
+            </table>
+            <div id="skeleton" class="skeleton hidden"></div>
+          </div>
+
+          <h3>Crear vehículo</h3>
+          <form id="f-crear" class="row gap wrap">
+            <input name="placa"  placeholder="Placa"  required />
+            <input name="marca"  placeholder="Marca" />
+            <input name="modelo" placeholder="Modelo" />
+            <input name="anio"   placeholder="Año" />
+            <button class="btn" id="btn-crear" type="submit">Guardar</button>
+          </form>
+          <div id="form-errors" class="form-errors"></div>
+        </div>
+      </section>
+
+      <!-- ASIGNACIONES -->
+      <section data-view="asignaciones" class="view hidden">
+        <div class="card">
+          <div class="row between">
+            <h2>Asignaciones</h2>
+            <button id="btn-asig-cargar" class="btn">Cargar</button>
+          </div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr id="asig-head"></tr></thead>
+              <tbody id="asig-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:.75rem">
+          <h3>Crear asignación</h3>
+          <form id="f-asig-crear" class="row gap wrap">
+            <input name="vehiculo"     placeholder="vehiculo_id"  required />
+            <input name="conductor"    placeholder="conductor_id" required />
+            <input name="km_salida"    type="number" placeholder="km_salida" required />
+            <input name="fecha_salida" type="datetime-local" placeholder="fecha_salida" required />
+            <button class="btn" id="btn-asig-crear" type="submit">Guardar</button>
+          </form>
+          <div id="asig-errors" class="form-errors"></div>
+        </div>
+      </section>
+
+      <!-- COMBUSTIBLE -->
+      <section data-view="combustible" class="view hidden">
+        <div class="card">
+          <div class="row between">
+            <h2>Combustible</h2>
+            <button id="btn-comb-cargar" class="btn">Cargar</button>
+          </div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr id="comb-head"></tr></thead>
+              <tbody id="comb-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:.75rem">
+          <h3>Registrar carga de combustible</h3>
+          <form id="f-comb-crear" class="row gap wrap">
+            <input name="vehiculo"  placeholder="vehiculo_id"  required />
+            <input name="conductor" placeholder="conductor_id" required />
+            <input name="litros"    type="number" step="0.01" placeholder="litros" required />
+            <input name="costo"     type="number" step="0.01" placeholder="costo" required />
+            <input name="odometro"  type="number" placeholder="odometro" required />
+            <input name="fecha"     type="datetime-local" placeholder="fecha" required />
+            <button class="btn" id="btn-comb-crear" type="submit">Guardar</button>
+          </form>
+          <div id="comb-errors" class="form-errors"></div>
+        </div>
+      </section>
+
+      <!-- MANTENIMIENTO -->
+      <section data-view="mantenimiento" class="view hidden">
+        <div class="card">
+          <div class="row between">
+            <h2>Mantenimiento</h2>
+            <button id="btn-mant-cargar" class="btn">Cargar</button>
+          </div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr id="mant-head"></tr></thead>
+              <tbody id="mant-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:.75rem">
+          <h3>Crear mantenimiento</h3>
+          <form id="f-mant-crear" class="row gap wrap">
+            <select name="tipo">
+              <option value="PREVENTIVO">PREVENTIVO</option>
+              <option value="CORRECTIVO">CORRECTIVO</option>
+            </select>
+            <input name="descripcion"      placeholder="descripcion" required />
+            <input name="fecha_programada" type="date" placeholder="fecha_programada" required />
+            <input name="costo"            type="number" step="0.01" placeholder="costo" required />
+            <input name="km_proximo"       type="number" placeholder="km_proximo" required />
+            <input name="vehiculo"         placeholder="vehiculo_id" required />
+            <input name="taller"           placeholder="taller_id" required />
+            <button class="btn" id="btn-mant-crear" type="submit">Guardar</button>
+          </form>
+          <div id="mant-errors" class="form-errors"></div>
+        </div>
+      </section>
+
+      <!-- USUARIOS -->
+      <section data-view="usuarios" class="view hidden">
+        <div class="card">
+          <div class="row between">
+            <h2>Usuarios</h2>
+            <button id="btn-users-cargar" class="btn">Cargar</button>
+          </div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr id="users-head"></tr></thead>
+              <tbody id="users-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:.75rem">
+          <h3>Crear usuario</h3>
+          <form id="f-user-crear" class="row gap wrap">
+            <input  name="email"   type="email"    placeholder="email" required />
+            <input  name="nombre"  placeholder="nombre" required />
+            <select name="role">
+              <option value="CONDUCTOR">CONDUCTOR</option>
+              <option value="TALLER">TALLER</option>
+              <option value="ADMIN">ADMIN</option>
+            </select>
+            <input  name="password"  type="password" placeholder="password" required />
+            <input  name="password2" type="password" placeholder="confirmar password" required />
+            <button class="btn" id="btn-user-crear" type="submit">Guardar</button>
+          </form>
+          <div id="user-errors" class="form-errors"></div>
+        </div>
+      </section>
+
+
+      <!-- REPORTES -->
+      <section data-view="reportes" class="view hidden">
+        <div class="card">
+          <h2>Reportes</h2>
+
+          <div class="row gap wrap">
+            <input id="rv-desde" type="date" />
+            <span>—</span>
+            <input id="rv-hasta" type="date" />
+            <button id="btn-rv" class="btn">Descargar Vehículos (CSV)</button>
+          </div>
+
+          <div class="row gap wrap" style="margin-top:.5rem">
+            <input id="rk-id"    placeholder="vehiculo_id" />
+            <input id="rk-desde" type="date" />
+            <span>—</span>
+            <input id="rk-hasta" type="date" />
+            <button id="btn-rk" class="btn">Descargar Kilometraje (PDF)</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- LOG -->
+      <section class="card log-card">
+        <h2>Log</h2>
+        <pre id="log" class="log"></pre>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal Ajustes -->
+  <dialog id="dlg-settings" class="dialog">
+    <form method="dialog" class="card">
+      <h3>Ajustes</h3>
+      <label class="stack">
+        <span>BASE_URL (API)</span>
+        <input id="in-base" placeholder="http://localhost:8000/api" />
+      </label>
+      <div class="row gap">
+        <button id="btn-save-base" class="btn">Guardar</button>
+        <button id="btn-test" class="btn btn--ghost" type="button">Probar conexión</button>
+        <button class="btn btn--ghost" value="close">Cerrar</button>
+      </div>
+      <small class="muted">Se persiste en <code>localStorage.BASE_URL</code>.</small>
+    </form>
+  </dialog>
+
+  <!-- JS base -->
+  <script src="/frontend/js/config.js"></script>
+  <script src="/frontend/js/http.js"></script>
+  <script src="/frontend/js/auth.js"></script>
+  <script src="/frontend/js/app.js"></script>
+
+  <!-- JS por página -->
+  <script src="/frontend/js/pages/vehiculos.js"></script>
+  <script src="/frontend/js/pages/asignaciones.js"></script>
+  <script src="/frontend/js/pages/combustible.js"></script>
+  <script src="/frontend/js/pages/mantenimiento.js"></script>
+  <script src="/frontend/js/pages/usuarios.js"></script>
+  <script src="/frontend/js/pages/reportes.js"></script>
+</body>
+</html>
